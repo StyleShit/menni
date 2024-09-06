@@ -1,3 +1,2 @@
-export default function helloWorld() {
-	return 'Hello World!';
-}
+export { createMenu } from './create-menu';
+export type { Components } from './types';
