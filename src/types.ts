@@ -27,12 +27,18 @@ export type RegisterFns<
 
 export type RegisterItem<
 	TSlots extends string,
-	T extends ComponentType,
-> = (args: {
-	id: string;
-	slot?: 'default' | TSlots;
-	props: ComponentPropsWithoutRef<T>;
-}) => void;
+	TComponent extends ComponentType,
+> = (
+	args: {
+		id: string;
+		slot?: 'default' | TSlots;
+	} & Props<TComponent>,
+) => void;
+
+type Props<T extends ComponentType> =
+	unknown extends ComponentPropsWithoutRef<T>
+		? { props?: never }
+		: { props: ComponentPropsWithoutRef<T> };
 
 export type UseSlotItems<TSlots extends string> = (
 	slot?: TSlots | 'default',

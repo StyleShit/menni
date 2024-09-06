@@ -29,10 +29,7 @@ describe('Menni', () => {
 			},
 		});
 
-		menu.registerB({
-			id: 'item-B',
-			props: {},
-		});
+		menu.registerB({ id: 'item-B' });
 
 		// Act - Render items.
 		const Component = () => {
@@ -193,9 +190,9 @@ describe('Menni', () => {
 		render(<Component />);
 
 		// Act - Register multiple item.
-		menu.registerA({ id: 'a-1', props: {} });
-		menu.registerA({ id: 'a-2', props: {} });
-		menu.registerA({ id: 'a-3', props: {} });
+		menu.registerA({ id: 'a-1' });
+		menu.registerA({ id: 'a-2' });
+		menu.registerA({ id: 'a-3' });
 
 		act(() => {
 			vi.runAllTimers();
