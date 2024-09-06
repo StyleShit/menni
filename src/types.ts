@@ -34,6 +34,7 @@ export type RegisterItem<
 		id: string;
 		slot?: 'default' | TSlots;
 		priority?: number;
+		override?: boolean;
 	} & Props<TComponent>,
 ) => void;
 

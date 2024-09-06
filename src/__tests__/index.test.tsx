@@ -155,6 +155,72 @@ describe('Menni', () => {
 		expect(container.innerHTML).toBe('A - priority 1A - priority 10');
 	});
 
+	it('should throw when trying to register item with an existing id', () => {
+		// Arrange.
+		const menu = createMenu({
+			components: {
+				A: () => <></>,
+			},
+		});
+
+		menu.registerA({
+			id: 'item-A',
+		});
+
+		// Act & Assert.
+		expect(() => {
+			menu.registerA({
+				id: 'item-A',
+			});
+		}).toThrowError(
+			"Item with id 'item-A' already exists in slot 'default'. Use 'override' to replace it.",
+		);
+	});
+
+	it('should override an existing item when override is set to true', () => {
+		// Arrange.
+		const menu = createMenu({
+			components: {
+				A: ({ title }: { title: string }) => <span>{title}</span>,
+			},
+		});
+
+		menu.registerA({
+			id: 'item-A',
+			props: {
+				title: 'initial A',
+			},
+		});
+
+		// Act - Register a new item.
+		menu.registerA({
+			id: 'item-A',
+			override: true,
+			props: {
+				title: 'new A',
+			},
+		});
+
+		// Act - Render items.
+		const Component = () => {
+			const items = menu.useSlotItems();
+
+			return (
+				<div>
+					{items.map(({ id, MenuItem }) => (
+						<MenuItem key={id} />
+					))}
+				</div>
+			);
+		};
+
+		render(<Component />);
+
+		// Assert.
+		expect(screen.queryByText('initial A')).not.toBeInTheDocument();
+		expect(screen.getByText('new A')).toBeInTheDocument();
+	});
+
 	it('should re-render on item registration', () => {
 		// Arrange.
 		const menu = createMenu({

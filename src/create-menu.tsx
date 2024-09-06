@@ -75,9 +75,23 @@ function createRegisterItem<
 	registry: Registry<TSlots>,
 	Component: TComponent,
 ): RegisterItem<TSlots, TComponent> {
-	return ({ slot = 'default', id, props, priority = 10 }) => {
+	return ({
+		slot = 'default',
+		id,
+		props,
+		priority = 10,
+		override = false,
+	}) => {
 		if (!registry.items.has(slot)) {
 			registry.items.set(slot, new Map());
+		}
+
+		const current = registry.items.get(slot)?.get(id);
+
+		if (current && !override) {
+			throw new Error(
+				`Item with id '${id}' already exists in slot '${slot}'. Use 'override' to replace it.`,
+			);
 		}
 
 		registry.items.get(slot)?.set(id, {
