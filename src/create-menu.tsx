@@ -1,5 +1,5 @@
 import { capitalize } from './utils';
-import type { ComponentType } from 'react';
+import { useEffect, useReducer, type ComponentType } from 'react';
 import type {
 	AnyFunction,
 	Components,
@@ -13,7 +13,7 @@ export function createMenu<
 	TComponents extends Components,
 	TSlots extends string = 'default',
 >(args: { slots?: TSlots[]; components: TComponents }) {
-	const registry: Registry<TSlots> = new Map();
+	const registry = createRegistry<TSlots>();
 
 	const useSlotItems = createUseSlotItems(registry);
 
@@ -25,6 +25,30 @@ export function createMenu<
 	return {
 		useSlotItems,
 		...componentsRegisters,
+	};
+}
+
+function createRegistry<TSlots extends string>(): Registry<TSlots> {
+	const subscribers = new Set<() => void>();
+
+	const subscribe = (subscriber: () => void) => {
+		subscribers.add(subscriber);
+
+		return () => {
+			subscribers.delete(subscriber);
+		};
+	};
+
+	const notify = () => {
+		subscribers.forEach((subscriber) => {
+			subscriber();
+		});
+	};
+
+	return {
+		items: new Map(),
+		subscribe,
+		notify,
 	};
 }
 
@@ -52,14 +76,16 @@ function createRegisterItem<
 	Component: TComponent,
 ): RegisterItem<TSlots, TComponent> {
 	return ({ slot = 'default', id, props }) => {
-		if (!registry.has(slot)) {
-			registry.set(slot, new Map());
+		if (!registry.items.has(slot)) {
+			registry.items.set(slot, new Map());
 		}
 
-		registry.get(slot)?.set(id, {
+		registry.items.get(slot)?.set(id, {
 			id,
 			component: () => <Component {...(props as any)} />,
 		});
+
+		registry.notify();
 	};
 }
 
@@ -67,7 +93,13 @@ function createUseSlotItems<TSlots extends string>(
 	registry: Registry<TSlots>,
 ): UseSlotItems<TSlots> {
 	return (slot = 'default') => {
-		const items = registry.get(slot);
+		const [, reRender] = useReducer((p) => !p, false);
+
+		useEffect(() => {
+			return registry.subscribe(reRender);
+		}, []);
+
+		const items = registry.items.get(slot);
 
 		if (!items) {
 			return [];

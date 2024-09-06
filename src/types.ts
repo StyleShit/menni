@@ -4,10 +4,11 @@ export type Components = Record<string, ComponentType<any>>;
 
 export type AnyFunction = (...args: any[]) => any;
 
-export type Registry<TSlots extends string> = Map<
-	TSlots | 'default',
-	Map<string, RegistryItem>
->;
+export type Registry<TSlots extends string> = {
+	subscribe: (subscriber: () => void) => () => void;
+	notify: () => void;
+	items: Map<TSlots | 'default', Map<string, RegistryItem>>;
+};
 
 type RegistryItem = {
 	id: string;
