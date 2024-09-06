@@ -1,9 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createMenu } from '../index';
 import { render, screen } from '@testing-library/react';
 import { act } from 'react';
 
 describe('Menni', () => {
+	beforeAll(() => {
+		vi.useFakeTimers();
+	});
+
+	afterAll(() => {
+		vi.useRealTimers();
+	});
+
 	it('should create a menu that can register items and retrieve them', () => {
 		// Arrange.
 		const menu = createMenu({
@@ -141,17 +149,59 @@ describe('Menni', () => {
 		expect(screen.queryByText('new A')).not.toBeInTheDocument();
 
 		// Act - Register a new item.
+		menu.registerA({
+			id: 'item-A-new',
+			props: {
+				title: 'new A',
+			},
+		});
+
 		act(() => {
-			menu.registerA({
-				id: 'item-A-new',
-				props: {
-					title: 'new A',
-				},
-			});
+			vi.runAllTimers();
 		});
 
 		// Assert.
 		expect(screen.getByText('initial A')).toBeInTheDocument();
 		expect(screen.getByText('new A')).toBeInTheDocument();
+	});
+
+	it('should batch re-renders', () => {
+		// Arrange.
+		let renders = 0;
+
+		const menu = createMenu({
+			components: {
+				A: () => <></>,
+			},
+		});
+
+		// Act - Render items.
+		const Component = () => {
+			renders++;
+
+			const items = menu.useSlotItems();
+
+			return (
+				<div>
+					{items.map(({ id, MenuItem }) => (
+						<MenuItem key={id} />
+					))}
+				</div>
+			);
+		};
+
+		render(<Component />);
+
+		// Act - Register multiple item.
+		menu.registerA({ id: 'a-1', props: {} });
+		menu.registerA({ id: 'a-2', props: {} });
+		menu.registerA({ id: 'a-3', props: {} });
+
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		// Assert.
+		expect(renders).toBe(2);
 	});
 });

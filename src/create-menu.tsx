@@ -1,4 +1,4 @@
-import { capitalize } from './utils';
+import { capitalize, debounce } from './utils';
 import { useEffect, useReducer, type ComponentType } from 'react';
 import type {
 	AnyFunction,
@@ -39,11 +39,11 @@ function createRegistry<TSlots extends string>(): Registry<TSlots> {
 		};
 	};
 
-	const notify = () => {
+	const notify = debounce(() => {
 		subscribers.forEach((subscriber) => {
 			subscriber();
 		});
-	};
+	}, 0);
 
 	return {
 		items: new Map(),
