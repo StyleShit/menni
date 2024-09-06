@@ -75,13 +75,14 @@ function createRegisterItem<
 	registry: Registry<TSlots>,
 	Component: TComponent,
 ): RegisterItem<TSlots, TComponent> {
-	return ({ slot = 'default', id, props }) => {
+	return ({ slot = 'default', id, props, priority = 10 }) => {
 		if (!registry.items.has(slot)) {
 			registry.items.set(slot, new Map());
 		}
 
 		registry.items.get(slot)?.set(id, {
 			id,
+			priority,
 			component: () => <Component {...(props as any)} />,
 		});
 
@@ -105,9 +106,11 @@ function createUseSlotItems<TSlots extends string>(
 			return [];
 		}
 
-		return [...items.values()].map(({ id, component }) => ({
-			id,
-			MenuItem: component,
-		}));
+		return [...items.values()]
+			.sort((a, b) => a.priority - b.priority)
+			.map(({ id, component }) => ({
+				id,
+				MenuItem: component,
+			}));
 	};
 }

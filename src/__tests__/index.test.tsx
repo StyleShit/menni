@@ -111,6 +111,50 @@ describe('Menni', () => {
 		expect(screen.queryByText('A - slot-3')).not.toBeInTheDocument();
 	});
 
+	it('should support priorities', () => {
+		// Arrange.
+		const menu = createMenu({
+			components: {
+				A: ({ title }: { title: string }) => title,
+			},
+		});
+
+		// Act - Register items.
+		menu.registerA({
+			id: 'item-A-priority-10',
+			priority: 10,
+			props: {
+				title: 'A - priority 10',
+			},
+		});
+
+		menu.registerA({
+			id: 'item-A-priority-2',
+			priority: 1,
+			props: {
+				title: 'A - priority 1',
+			},
+		});
+
+		// Act - Render items.
+		const Component = () => {
+			const items = menu.useSlotItems();
+
+			return (
+				<>
+					{items.map(({ id, MenuItem }) => (
+						<MenuItem key={id} />
+					))}
+				</>
+			);
+		};
+
+		const { container } = render(<Component />);
+
+		// Assert.
+		expect(container.innerHTML).toBe('A - priority 1A - priority 10');
+	});
+
 	it('should re-render on item registration', () => {
 		// Arrange.
 		const menu = createMenu({

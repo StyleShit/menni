@@ -12,6 +12,7 @@ export type Registry<TSlots extends string> = {
 
 type RegistryItem = {
 	id: string;
+	priority: number;
 	component: ComponentType;
 };
 
@@ -32,6 +33,7 @@ export type RegisterItem<
 	args: {
 		id: string;
 		slot?: 'default' | TSlots;
+		priority?: number;
 	} & Props<TComponent>,
 ) => void;
 
