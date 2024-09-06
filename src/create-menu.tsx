@@ -78,7 +78,8 @@ function createRegisterItem<
 	return ({
 		slot = 'default',
 		id,
-		props,
+		props: _props,
+		useProps: _useProps,
 		priority = 10,
 		override = false,
 	}) => {
@@ -94,10 +95,16 @@ function createRegisterItem<
 			);
 		}
 
+		const useProps = _useProps || (() => _props);
+
 		registry.items.get(slot)?.set(id, {
 			id,
 			priority,
-			component: () => <Component {...(props as any)} />,
+			component: () => {
+				const props = useProps();
+
+				return <Component {...(props as any)} />;
+			},
 		});
 
 		registry.notify();

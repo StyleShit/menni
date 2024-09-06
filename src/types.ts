@@ -35,13 +35,18 @@ export type RegisterItem<
 		slot?: 'default' | TSlots;
 		priority?: number;
 		override?: boolean;
-	} & Props<TComponent>,
+	} & PropsOrUseProps<TComponent>,
 ) => void;
 
-type Props<T extends ComponentType> =
+type PropsOrUseProps<T extends ComponentType> =
 	unknown extends ComponentPropsWithoutRef<T>
-		? { props?: never }
-		: { props: ComponentPropsWithoutRef<T> };
+		? { props?: never; useProps?: never }
+		:
+				| { props: ComponentPropsWithoutRef<T>; useProps?: never }
+				| {
+						useProps: () => ComponentPropsWithoutRef<T>;
+						props?: never;
+				  };
 
 export type UseSlotItems<TSlots extends string> = (
 	slot?: TSlots | 'default',

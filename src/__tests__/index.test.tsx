@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createMenu } from '../index';
 import { render, screen } from '@testing-library/react';
-import { act } from 'react';
+import { act, useState } from 'react';
 
 describe('Menni', () => {
 	beforeAll(() => {
@@ -219,6 +219,67 @@ describe('Menni', () => {
 		// Assert.
 		expect(screen.queryByText('initial A')).not.toBeInTheDocument();
 		expect(screen.getByText('new A')).toBeInTheDocument();
+	});
+
+	it('should support reactive props', () => {
+		// Arrange.
+		const menu = createMenu({
+			components: {
+				A: ({
+					checked,
+					toggle,
+				}: {
+					checked: boolean;
+					toggle: () => void;
+				}) => (
+					<button onClick={toggle}>
+						{checked ? 'checked' : 'unchecked'}
+					</button>
+				),
+			},
+		});
+
+		menu.registerA({
+			id: 'item-A',
+			useProps: () => {
+				const [checked, setChecked] = useState(false);
+
+				return {
+					checked,
+					toggle: () => {
+						setChecked((prev) => !prev);
+					},
+				};
+			},
+		});
+
+		// Act - Render.
+		const Component = () => {
+			const items = menu.useSlotItems();
+
+			return (
+				<>
+					{items.map(({ id, MenuItem }) => (
+						<MenuItem key={id} />
+					))}
+				</>
+			);
+		};
+
+		render(<Component />);
+
+		// Assert.
+		const button = screen.getByRole('button');
+
+		expect(button).toHaveTextContent('unchecked');
+
+		// Act - Click the button.
+		act(() => {
+			button.click();
+		});
+
+		// Assert.
+		expect(button).toHaveTextContent('checked');
 	});
 
 	it('should re-render on item registration', () => {
