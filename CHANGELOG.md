@@ -1,5 +1,11 @@
 # menni
 
+## 0.0.2
+
+### Patch Changes
+
+- 819d2a0: Explain why this library exists
+
 ## 0.0.1
 
 ### Patch Changes
