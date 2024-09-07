@@ -2,9 +2,14 @@
 
 Simple, headless & type-safe menus library for React.
 
-## Usage
+## Why?
 
-Menni lets you create a menu with your own UI components, and manages the state of the menu for you.
+Menni lets you create reactive menus for pluggable applications, and allow 3rd parties extend your application with a
+set of closed components and their configurations. This is useful for keeping the UI consistent, while still allowing
+for some amount of extensibility. It's also useful when you want to separate your code into independent packages/modules
+that extend a host application with their own menu items.
+
+## Usage
 
 To start, create a menu using the `createMenu` function. It accepts a list of components that you want to allow
 registering into your menu:
@@ -20,14 +25,15 @@ export const menu = createMenu({
 });
 ```
 
-In addition, you can specify multiple slots for your menu, which will allow you to place menu items in different parts of
-your UI. Whether you're specifying slots or not, Menni will always create a `'default'` slot for you:
+In addition, you can specify multiple slots for your menu which will allow you to group the menu items and
+place them in different parts of the UI. Whether you're specifying slots or not, Menni will always create a
+`'default'` slot for you:
 
 ```tsx
 import { createMenu } from 'menni';
 
 export const menu = createMenu({
-  slots: ['left', 'right'],
+  slots: ['links', 'actions'],
   components: {
     Link: ({ text, href }) => <a href={href}>{text}</a>,
     Button: ({ text, onClick }) => <button onClick={onClick}>{text}</button>,
@@ -53,7 +59,7 @@ import { useState } from 'react';
 
 menu.registerLink({
   id: 'home',
-  slot: 'left',
+  slot: 'links',
   props: {
     text: 'Home',
     href: '/',
@@ -62,7 +68,7 @@ menu.registerLink({
 
 menu.registerButton({
   id: 'login',
-  slot: 'right',
+  slot: 'actions',
   priority: 0,
   useProps: () => {
     const [isClicked, setIsClicked] = useState(false);
@@ -89,25 +95,29 @@ array of items for that slot, sorted by priority:
 
 ```tsx
 import { menu } from './menu';
+import { Logo } from './logo';
 
 const Header = () => {
-  const leftItems = menu.useSlotItems('left');
-  const rightItems = menu.useSlotItems('right');
+  const links = menu.useSlotItems('links');
+  const actions = menu.useSlotItems('actions');
 
   return (
     <header>
       <nav>
         <ul>
-          {leftItems.map(({ id, MenuItem }) => (
+          {links.map(({ id, MenuItem }) => (
             <li key={id}>
               <MenuItem />
             </li>
           ))}
         </ul>
       </nav>
+
+      <Logo />
+
       <nav>
         <ul>
-          {rightItems.map(({ id, MenuItem }) => (
+          {actions.map(({ id, MenuItem }) => (
             <li key={id}>
               <MenuItem />
             </li>
