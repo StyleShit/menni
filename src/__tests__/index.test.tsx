@@ -1,6 +1,14 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import {
+	afterAll,
+	beforeAll,
+	describe,
+	expect,
+	expectTypeOf,
+	it,
+	vi,
+} from 'vitest';
 import { createMenu } from '../index';
-import { render, screen } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import { act, useState } from 'react';
 
 describe('Menni', () => {
@@ -449,5 +457,117 @@ describe('Menni', () => {
 
 		// Assert.
 		expect(renders).toBe(2);
+	});
+
+	it('should have proper types for menu creation', () => {
+		expectTypeOf(createMenu).parameter(0).toEqualTypeOf<{
+			components: Record<string, React.ComponentType<any>>;
+			slots?: string[];
+		}>();
+
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const menu = createMenu({
+			components: {
+				A: ({ title }: { title: string }) => <span>{title}</span>,
+				B: () => <span>B</span>,
+			},
+			slots: ['a', 'b'],
+		});
+
+		expectTypeOf<keyof typeof menu>().toEqualTypeOf<
+			'registerA' | 'registerB' | 'useSlotItems' | 'unregister'
+		>();
+	});
+
+	it('should have proper types for items registration', () => {
+		const menu = createMenu({
+			components: {
+				A: ({ title }: { title: string }) => <span>{title}</span>,
+				B: () => <span>B</span>,
+			},
+			slots: ['a', 'b'],
+		});
+
+		type RegisterA = Parameters<typeof menu.registerA>[0];
+
+		expectTypeOf<keyof RegisterA>().toEqualTypeOf<
+			'id' | 'slot' | 'priority' | 'override' | 'props' | 'useProps'
+		>();
+
+		expectTypeOf<RegisterA['id']>().toEqualTypeOf<string>();
+
+		expectTypeOf<RegisterA['slot']>().toEqualTypeOf<
+			'a' | 'b' | 'default' | undefined
+		>();
+
+		expectTypeOf<RegisterA['priority']>().toEqualTypeOf<
+			number | undefined
+		>();
+
+		expectTypeOf<RegisterA['override']>().toEqualTypeOf<
+			boolean | undefined
+		>();
+
+		expectTypeOf<RegisterA['props']>().toEqualTypeOf<
+			{ title: string } | undefined
+		>();
+
+		expectTypeOf<RegisterA['useProps']>().toEqualTypeOf<
+			(() => { title: string }) | undefined
+		>();
+
+		// @ts-expect-error Cannot use both `props` and `useProps`.
+		menu.registerA({
+			id: 'item-A',
+			props: {
+				title: 'A',
+			},
+			useProps: () => ({ title: 'A' }),
+		});
+
+		type RegisterB = Parameters<typeof menu.registerB>[0];
+
+		expectTypeOf<RegisterB['props']>().toEqualTypeOf<undefined>();
+		expectTypeOf<RegisterB['useProps']>().toEqualTypeOf<undefined>();
+	});
+
+	it('should have proper types for items retrieval', () => {
+		const menu = createMenu({
+			components: {},
+			slots: ['a', 'b'],
+		});
+
+		expectTypeOf(menu.useSlotItems)
+			.parameter(0)
+			.toEqualTypeOf<'a' | 'b' | 'default' | undefined>();
+
+		const defaultItems = renderHook(() => menu.useSlotItems()).result
+			.current;
+
+		const aItems = renderHook(() => menu.useSlotItems('a')).result.current;
+		const bItems = renderHook(() => menu.useSlotItems('b')).result.current;
+
+		expectTypeOf(defaultItems).items.toEqualTypeOf<{
+			id: string;
+			MenuItem: React.ComponentType;
+		}>();
+
+		expectTypeOf(aItems).items.toEqualTypeOf<{
+			id: string;
+			MenuItem: React.ComponentType;
+		}>();
+
+		expectTypeOf(bItems).items.toEqualTypeOf<{
+			id: string;
+			MenuItem: React.ComponentType;
+		}>();
+	});
+
+	it('should have proper types for items unregistration', () => {
+		const menu = createMenu({
+			components: {},
+		});
+
+		expectTypeOf(menu.unregister).toEqualTypeOf<(id: string) => void>();
 	});
 });
