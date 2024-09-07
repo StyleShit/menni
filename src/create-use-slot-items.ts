@@ -18,7 +18,7 @@ export function createUseSlotItems<TSlots extends string>(
 			return registry.subscribe(reRender);
 		}, [slot]);
 
-		const items = registry.items.get(slot);
+		const items = registry.slots.get(slot);
 
 		if (!items) {
 			return [];

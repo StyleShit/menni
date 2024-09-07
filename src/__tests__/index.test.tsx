@@ -333,6 +333,44 @@ describe('Menni', () => {
 		expect(screen.getByText('new A')).toBeInTheDocument();
 	});
 
+	it('should support item unregistration', () => {
+		// Arrange.
+		const menu = createMenu({
+			components: {
+				A: () => 'A',
+			},
+		});
+
+		menu.registerA({ id: 'item-A' });
+
+		const Component = () => {
+			const items = menu.useSlotItems();
+
+			return (
+				<div>
+					{items.map(({ id, MenuItem }) => (
+						<MenuItem key={id} />
+					))}
+				</div>
+			);
+		};
+
+		render(<Component />);
+
+		// Assert.
+		expect(screen.getByText('A')).toBeInTheDocument();
+
+		// Act.
+		menu.unregister('item-A');
+
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		// Assert.
+		expect(screen.queryByText('A')).not.toBeInTheDocument();
+	});
+
 	it('should batch re-renders', () => {
 		// Arrange.
 		let renders = 0;

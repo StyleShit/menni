@@ -4,7 +4,7 @@ import { debounce } from './utils';
 export type Registry<TSlots extends string> = {
 	subscribe: (subscriber: () => void) => () => void;
 	notify: () => void;
-	items: Map<TSlots | 'default', Map<string, RegistryItem>>;
+	slots: Map<TSlots | 'default', Map<string, RegistryItem>>;
 };
 
 type RegistryItem = {
@@ -15,7 +15,7 @@ type RegistryItem = {
 
 export function createRegistry<TSlots extends string>(): Registry<TSlots> {
 	const subscribers = new Set<() => void>();
-	const items: Registry<TSlots>['items'] = new Map();
+	const slots: Registry<TSlots>['slots'] = new Map();
 
 	const subscribe = (subscriber: () => void) => {
 		subscribers.add(subscriber);
@@ -32,7 +32,7 @@ export function createRegistry<TSlots extends string>(): Registry<TSlots> {
 	}, 0);
 
 	return {
-		items,
+		slots,
 		subscribe,
 		notify,
 	};

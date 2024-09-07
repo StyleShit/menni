@@ -41,11 +41,11 @@ export function createRegisterItem<
 		props: _props,
 		useProps: _useProps,
 	}) => {
-		if (!registry.items.has(slot)) {
-			registry.items.set(slot, new Map());
+		if (!registry.slots.has(slot)) {
+			registry.slots.set(slot, new Map());
 		}
 
-		const itemExists = !!registry.items.get(slot)?.has(id);
+		const itemExists = !!registry.slots.get(slot)?.has(id);
 
 		if (itemExists && !override) {
 			throw new Error(
@@ -55,7 +55,7 @@ export function createRegisterItem<
 
 		const useProps = _useProps || (() => _props);
 
-		registry.items.get(slot)?.set(id, {
+		registry.slots.get(slot)?.set(id, {
 			id,
 			priority,
 			component: () => {
