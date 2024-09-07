@@ -1,6 +1,6 @@
 # Menni
 
-Simple & type-safe menus library for React.
+Simple, headless & type-safe menus library for React.
 
 ## Usage
 

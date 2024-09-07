@@ -1,6 +1,6 @@
 {
 	"name": "menni",
-	"description": "Simple & type-safe menus library for React",
+	"description": "Simple, headless & type-safe menus library for React",
 	"version": "0.0.0",
 	"author": "StyleShit",
 	"license": "MIT",
