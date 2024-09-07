@@ -65,6 +65,6 @@ export function createRegisterItem<
 			},
 		});
 
-		registry.notify();
+		registry.notify(slot);
 	};
 }

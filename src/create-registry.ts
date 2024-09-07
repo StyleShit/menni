@@ -2,8 +2,8 @@ import type { ComponentType } from 'react';
 import { debounce } from './utils';
 
 export type Registry<TSlots extends string> = {
-	subscribe: (subscriber: () => void) => () => void;
-	notify: () => void;
+	subscribe: (slot: TSlots | 'default', subscriber: () => void) => () => void;
+	notify: (slot: TSlots | 'default') => void;
 	slots: Map<TSlots | 'default', Map<string, RegistryItem>>;
 };
 
@@ -14,19 +14,23 @@ type RegistryItem = {
 };
 
 export function createRegistry<TSlots extends string>(): Registry<TSlots> {
-	const subscribers = new Set<() => void>();
 	const slots: Registry<TSlots>['slots'] = new Map();
+	const subscribers = new Map<TSlots | 'default', Set<() => void>>();
 
-	const subscribe = (subscriber: () => void) => {
-		subscribers.add(subscriber);
+	const subscribe: Registry<TSlots>['subscribe'] = (slot, subscriber) => {
+		if (!subscribers.has(slot)) {
+			subscribers.set(slot, new Set());
+		}
+
+		subscribers.get(slot)?.add(subscriber);
 
 		return () => {
-			subscribers.delete(subscriber);
+			subscribers.get(slot)?.delete(subscriber);
 		};
 	};
 
-	const notify = debounce(() => {
-		subscribers.forEach((subscriber) => {
+	const notify: Registry<TSlots>['notify'] = debounce((slot) => {
+		subscribers.get(slot)?.forEach((subscriber) => {
 			subscriber();
 		});
 	}, 0);

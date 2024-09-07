@@ -4,10 +4,12 @@ export function createUnregister<TSlots extends string>(
 	registry: Registry<TSlots>,
 ) {
 	return (id: string) => {
-		registry.slots.forEach((slot) => {
-			slot.delete(id);
-		});
+		for (const [slotName, slotItems] of registry.slots.entries()) {
+			slotItems.delete(id);
 
-		registry.notify();
+			registry.notify(slotName);
+
+			break;
+		}
 	};
 }

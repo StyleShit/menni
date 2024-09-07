@@ -15,7 +15,7 @@ export function createUseSlotItems<TSlots extends string>(
 		const [, reRender] = useReducer((p) => !p, false);
 
 		useEffect(() => {
-			return registry.subscribe(reRender);
+			return registry.subscribe(slot, reRender);
 		}, [slot]);
 
 		const items = registry.slots.get(slot);
