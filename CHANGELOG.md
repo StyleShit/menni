@@ -1,5 +1,11 @@
 # menni
 
+## 0.0.3
+
+### Patch Changes
+
+- b6668b6: Improve documentation
+
 ## 0.0.2
 
 ### Patch Changes
