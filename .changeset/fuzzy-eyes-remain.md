@@ -1,0 +1,5 @@
+---
+'menni': patch
+---
+
+Improve documentation
