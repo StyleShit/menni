@@ -381,6 +381,59 @@ describe('Menni', () => {
 		expect(renders).toBe(1);
 	});
 
+	it('should not re-render on item registration when reactive = false', () => {
+		// Arrange.
+		const menu = createMenu({
+			components: {
+				A: ({ title }: { title: string }) => <span>{title}</span>,
+			},
+		});
+
+		menu.registerA({
+			id: 'item-A-initial',
+			props: {
+				title: 'initial A',
+			},
+		});
+
+		// Act - Render items.
+		const Component = () => {
+			const items = menu.useSlotItems('default', {
+				reactive: false,
+			});
+
+			return (
+				<div>
+					{items.map(({ id, MenuItem }) => (
+						<MenuItem key={id} />
+					))}
+				</div>
+			);
+		};
+
+		render(<Component />);
+
+		// Assert.
+		expect(screen.getByText('initial A')).toBeInTheDocument();
+		expect(screen.queryByText('new A')).not.toBeInTheDocument();
+
+		// Act - Register a new item.
+		menu.registerA({
+			id: 'item-A-new',
+			props: {
+				title: 'new A',
+			},
+		});
+
+		act(() => {
+			vi.runAllTimers();
+		});
+
+		// Assert.
+		expect(screen.getByText('initial A')).toBeInTheDocument();
+		expect(screen.queryByText('new A')).not.toBeInTheDocument();
+	});
+
 	it('should support item unregistration', () => {
 		// Arrange.
 		const menu = createMenu({
@@ -540,6 +593,10 @@ describe('Menni', () => {
 		expectTypeOf(menu.useSlotItems)
 			.parameter(0)
 			.toEqualTypeOf<'a' | 'b' | 'default' | undefined>();
+
+		expectTypeOf(menu.useSlotItems)
+			.parameter(1)
+			.toEqualTypeOf<{ reactive?: boolean } | undefined>();
 
 		const defaultItems = renderHook(() => menu.useSlotItems()).result
 			.current;

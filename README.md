@@ -117,3 +117,15 @@ const Header = () => {
   );
 };
 ```
+
+You can also pass an optional `options` object to the `useSlotItems` hook to control its behavior:
+
+```tsx
+function Component() {
+  const links = mainMenu.useSlotItems('links', {
+    reactive: false, // Whether to re-render the component when the slot items change. Defaults to `true`.
+  });
+
+  // ...
+}
+```

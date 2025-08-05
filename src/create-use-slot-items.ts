@@ -3,6 +3,9 @@ import type { Registry } from './create-registry';
 
 export type UseSlotItems<TSlots extends string> = (
 	slot?: TSlots | 'default',
+	options?: {
+		reactive?: boolean;
+	},
 ) => Array<{
 	id: string;
 	MenuItem: ComponentType;
@@ -11,11 +14,15 @@ export type UseSlotItems<TSlots extends string> = (
 export function createUseSlotItems<TSlots extends string>(
 	registry: Registry<TSlots>,
 ): UseSlotItems<TSlots> {
-	return (slot = 'default') => {
+	return (slot = 'default', { reactive = true } = {}) => {
 		const [, reRender] = useReducer((p) => !p, false);
 
 		useEffect(() => {
-			return registry.subscribe(slot, reRender);
+			return registry.subscribe(slot, () => {
+				if (reactive) {
+					reRender();
+				}
+			});
 		}, [slot]);
 
 		const items = registry.slots.get(slot);
