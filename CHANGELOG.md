@@ -1,5 +1,19 @@
 # menni
 
+## 1.0.0
+
+### Major Changes
+
+- 6e7d7a4: First stable release
+
+### Minor Changes
+
+- 8b6b61c: Add support for non-reactive usage
+
+### Patch Changes
+
+- 802a8c3: Fix "`React` is not defined" error
+
 ## 0.0.3
 
 ### Patch Changes
