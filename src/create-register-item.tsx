@@ -1,3 +1,4 @@
+import * as React from 'react';
 import type { ComponentPropsWithoutRef, ComponentType } from 'react';
 import type { Registry } from './create-registry';
 
